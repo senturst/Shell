@@ -1,0 +1,41 @@
+QD_Key=9377#渠道名
+APP_KEY="123"#应用KEY
+function SendMessage(){
+ curl -H 'Content-type: application/json' -X POST     -d "{
+ 'app': '$APP_KEY',
+ 'eventId': '1',
+ 'eventType': 'trigger',
+ 'alarmName': 'Server Crash',
+ 'entityName': '$QD_Key',
+ 'entityId': '1',
+ 'priority': 3,
+ 'alarmContent': '|$1 process is down'
+ }"    'http://api.110monitor.com/alert/api/event'
+}
+
+while true
+do
+while read line
+do
+  OLD_IFS="$IFS"
+  IFS="|"
+  arr=($line)
+  res=`ps -ef|grep ${arr[0]}|grep -v grep`
+  if  ["$res" -eq ""] ;then
+        if [ ! -f "${arr[1]}/lock.lock" ]
+                then
+                        echo `date +%Y-%m-%d_%H:%M:%S`"[守候进程]：""没锁"
+                else
+        echo `date +%Y-%m-%d_%H:%M:%S`"[守候进程]：""为空"
+        echo `date +%Y-%m-%d_%H:%M:%S`"[守候进程]：""执行"${arr[1]/script/start_daemon_server.py 并等待60s}
+        cd ${arr[1]}/script;python start_daemon_server.py
+        SendMessage "${arr[0]}"
+        sleep 60
+        fi
+  else
+        echo `date +%Y-%m-%d_%H:%M:%S`"[守候进程]：""有进程"
+  fi
+done < '/home/shellfile/server.txt'
+echo `date +%Y-%m-%d_%H:%M:%S`"[守候进程]：""轮询完成 等待下一轮 300s"
+sleep 300
+done
