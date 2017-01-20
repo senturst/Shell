@@ -1,3 +1,4 @@
+#!/bin/bash
 QD_Key=9377#渠道名
 APP_KEY="123"#应用KEY
 function SendMessage(){
