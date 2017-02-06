@@ -1,0 +1,20 @@
+#!/bin/bash  
+
+#变量定义  
+ip_array=("192.168.0.157" "192.168.0.114")
+
+#本地通过ssh执行远程服务器的脚本  
+for ip in ${ip_array[*]}
+do
+    ssh $ip 'rm -rf /data/update/*';
+    rsync -avrzI --files-from=update/data.list update root@$ip:/data/update;
+    ssh $ip "sh /home/shellfile/hotupdate.sh";
+    echo -e "\033[32;49;1m [DONE] \033[39;49;0m"
+done
+
+
+
+
+#ssh 192.168.0.157 'rm -rf /data/update/*';
+#rsync -avrzI --files-from=update/data.list update root@192.168.0.157:/data/update;
+#ssh 192.168.0.157 "sh /home/shellfile/hotupdate.sh";
